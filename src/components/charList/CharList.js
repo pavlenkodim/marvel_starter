@@ -16,7 +16,7 @@ class CharList extends Component {
     marvelService = new MarvelService();
 
     componentDidMount() {
-        this.updateCharCards()
+        this.getCharCards()
     }
 
     onLoadedChars = (charList) => {
@@ -33,7 +33,7 @@ class CharList extends Component {
         })
     }
     
-    updateCharCards = () => {
+    getCharCards = () => {
         this.setState({loading: true})
         this.marvelService
             .getAllCharacters()
@@ -41,42 +41,51 @@ class CharList extends Component {
             .catch(this.onError);
     }
 
-    render() {
-        const {charList, loading, error} = this.state;
-
-        const charListItems = charList.map(item => {
-            return <CharCard key={item.id} char={item} />
+    renderItems(arr) {
+        const {loading, error} = this.state;
+    
+        const items = arr.map(item => {
+            return (
+                <li 
+                    className="char__item"
+                    key={item.id}
+                    onClick={() => this.props.onCharSelected(item.id)}
+                    >
+                    <img src={item.thumbnail} alt={item.name} style={item.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg' ? {objectFit: 'unset'} : null}/>
+                    <div className="char__name">{item.name}</div>
+                </li>
+            )
         })
-
+    
         const spinner = loading ? <Spinner /> : null;
         const errorMessage = error ? <ErrorMessage /> : null;
-        const content = !(loading || error) ? charListItems : null;
+        const content = !(loading || error) ? items : null;
+
+
+
+        return (
+            <ul className="char__grid" style={loading ? {gridTemplateColumns: 'auto'} : null}>
+                {spinner}
+                {errorMessage}
+                {content}
+            </ul>
+        )
+    }
+
+    render() {
+        const {charList} = this.state;
 
         // console.log(charList);
 
         return (
             <div className="char__list">
-                <ul className="char__grid" style={loading ? {gridTemplateColumns: 'auto'} : null}>
-                    {spinner}
-                    {errorMessage}
-                    {content}
-                </ul>
+                {this.renderItems(charList)}
                 <button className="button button__main button__long">
                     <div className="inner">load more</div>
                 </button>
             </div>
         )
     }
-}
-
-const CharCard = ({char}) => {
-    const {name, thumbnail} = char;
-    return(
-        <li className="char__item">
-            <img src={thumbnail} alt={name} style={thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg' ? {objectFit: 'unset'} : null}/>
-            <div className="char__name">{name}</div>
-        </li>
-    )
 }
 
 export default CharList;
