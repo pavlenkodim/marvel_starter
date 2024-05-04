@@ -9,11 +9,6 @@ import { toBeInTheDocument } from '@testing-library/jest-dom/matchers';
 import Spinner from '../spinner/Spinner';
 
 class RandomChar extends Component {
-    constructor(props) {
-        super(props);
-        this.updateChar();
-    }
-
     state = {
         char: {},
         loading: true,
@@ -21,6 +16,15 @@ class RandomChar extends Component {
     }
 
     marvelService = new MarvelService();
+
+    componentDidMount() {
+        this.updateChar();
+        // this.timerId = setInterval(this.updateChar, 10000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timerId);
+    }
 
     onCharLoaded = (char) => {
         this.setState({
@@ -50,6 +54,7 @@ class RandomChar extends Component {
         const spinner = loading ? <Spinner/> : null;
         const content = !(loading || error) ? <View char={char}/> : null;
 
+        console.log(char);
         return (
             <div className="randomchar">
                 {errorMessage}
@@ -77,13 +82,14 @@ const View = ({char}) => {
     const {name, description, thumbnail, homepage, wiki} = char
 
     const onDescriptoin = (str) => {
-        const descript = str ? str : 'Decription not found!';
+        const descript = str ? str : 'There is no description for this character!';
         return descript.length > 183 ? descript.slice(0, 183) + '...' : descript;
     }
 
     return (
         <div className="randomchar__block">
-            <img src={thumbnail} alt="Random character" className="randomchar__img"/>
+            <img src={thumbnail} alt="Random character" className="randomchar__img" 
+            style={thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg' ? {objectFit: 'contain'} : null}/>
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
                 <p className="randomchar__descr">
