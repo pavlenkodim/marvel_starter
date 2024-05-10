@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 
 import './charList.scss';
 
@@ -10,27 +10,20 @@ import { checkPropTypes } from 'prop-types';
 const CharList = (props) =>  {
 
     const [charList, setCharlist] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
     const [newItemLoading, setNewItemLoading] = useState(false);
     const [offset, setOffset] = useState(210);
     const [charEnded, setCharEnded] = useState(false);
 
-    const marvelService = new MarvelService();
+    const {loading, error, getAllCharacters} = useMarvelService();
 
     useEffect(() => {
-        onRequest();
+        onRequest(offset, true);
     }, [])
 
-    const onRequest = (offset) => {
-        onCharListLoading();
-        marvelService.getAllCharacters(offset)
+    const onRequest = (offset, initial) => {
+        initial ? setNewItemLoading(false) : setNewItemLoading(true);
+        getAllCharacters(offset)
             .then(onCharListLoaded)
-            .catch(onError);
-    }
-
-    const onCharListLoading = () => {
-        setNewItemLoading(true);
     }
 
     const onCharListLoaded = (newCharList) => {
@@ -40,15 +33,9 @@ const CharList = (props) =>  {
         }
 
         setCharlist(charList => [...charList, ...newCharList]);
-        setLoading(false);
         setNewItemLoading(false);
         setOffset(offset => offset + 9);
         setCharEnded(ended);
-    }
-
-    const onError = () => {
-        setError(true);
-        setLoading(false);
     }
 
     const itemRefs = useRef([]);
@@ -83,21 +70,21 @@ const CharList = (props) =>  {
             )
         })
     
-        const spinner = loading ? <Spinner /> : null;
-        const errorMessage = error ? <ErrorMessage /> : null;
-        const content = !(loading || error) ? items : null;
-
+        
         return (
-            <ul className="char__grid" style={loading ? {gridTemplateColumns: 'auto'} : null}>
-                {spinner}
-                {errorMessage}
-                {content}
+            <ul className="char__grid">
+                {items}
             </ul>
         )
     }
-
+    
+    const spinner = loading && !newItemLoading ? <Spinner /> : null;
+    const errorMessage = error ? <ErrorMessage /> : null;
+    
     return (
         <div className="char__list">
+            {spinner}
+            {errorMessage}
             {renderItems(charList)}
             <button 
                 className="button button__main button__long"
