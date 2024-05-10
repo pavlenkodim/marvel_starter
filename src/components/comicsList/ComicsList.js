@@ -1,8 +1,33 @@
+import { useState, useEffect } from 'react';
+
 import './comicsList.scss';
 import uw from '../../resources/img/UW.png';
 import xMen from '../../resources/img/x-men.png';
 
+import Spinner from '../spinner/Spinner';
+
+import useMarvelService from '../../services/MarvelService';
+
 const ComicsList = () => {
+
+    const {comicsList, setComicsList} = useState([]);
+    const [offset, setOffset] = useState(210);
+
+    const {loading, error, getAllComics} = useMarvelService();
+
+    useEffect(() => {
+
+    }, [])
+
+    const onRequest= () => {
+        getAllComics()
+            .then(setComicsList(offset))
+    }
+
+    const onComicsListLoaded = () => {
+        
+    }
+
     return (
         <div className="comics__list">
             <ul className="comics__grid">
