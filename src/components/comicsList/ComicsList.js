@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./comicsList.scss";
 import useMarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/Spinner";
@@ -13,14 +14,12 @@ const ComicsList = () => {
     const { loading, error, getAllComics } = useMarvelService();
 
     useEffect(() => {
-        console.log("useEffect");
         onRequest(offset, true);
     }, []);
 
     const onRequest = (offset, initial) => {
         initial ? setNewItemLoading(false) : setNewItemLoading(true);
         getAllComics(offset).then(onComicsListLoaded);
-        console.log("onRequest");
     };
 
     const onComicsListLoaded = (newComicsList) => {
@@ -33,13 +32,12 @@ const ComicsList = () => {
         setNewItemLoading(false);
         setOffset((offset) => offset + 8);
         setComicsListEded(ended);
-        console.log("onComicsListLoaded");
     };
 
     const ComicsItem = ({ id, title, thumbnail, price, ...rest }) => {
         return (
             <li key={id} className="comics__item">
-                <a href="#">
+                <Link to={`/comics/${id}`}>
                     <img
                         src={thumbnail}
                         alt="ultimate war"
@@ -47,7 +45,7 @@ const ComicsList = () => {
                     />
                     <div className="comics__item-name">{title}</div>
                     <div className="comics__item-price">{price}</div>
-                </a>
+                </Link>
             </li>
         );
     };
@@ -56,7 +54,6 @@ const ComicsList = () => {
     const spinner = loading && !newItemLoading ? <Spinner /> : null;
     const errorMessage = error ? <ErrorMessage /> : null;
 
-    console.log("render");
     return (
         <div className="comics__list">
             {spinner}
