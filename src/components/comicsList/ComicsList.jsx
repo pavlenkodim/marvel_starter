@@ -7,9 +7,9 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 
 const ComicsList = () => {
     const [comicsList, setComicsList] = useState([]);
-    const [offset, setOffset] = useState(210);
     const [newItemLoading, setNewItemLoading] = useState(false);
-    const [comicsListEnded, setComicsListEded] = useState(false);
+    const [offset, setOffset] = useState(210);
+    const [comicsListEnded, setComicsListEnded] = useState(false);
 
     const { loading, error, getAllComics } = useMarvelService();
 
@@ -31,26 +31,26 @@ const ComicsList = () => {
         setComicsList((comicsList) => [...comicsList, ...newComicsList]);
         setNewItemLoading(false);
         setOffset((offset) => offset + 8);
-        setComicsListEded(ended);
+        setComicsListEnded(ended);
     };
 
-    const ComicsItem = ({ id, title, thumbnail, price, ...rest }) => {
-        return (
-            <li key={id} className="comics__item">
-                <Link to={`/comics/${id}`}>
+    const renderItems = (array) => {
+        const items = array.map((item) => (
+            <li key={item.id} className="comics__item">
+                <Link to={`/comics/${item.id}`}>
                     <img
-                        src={thumbnail}
+                        src={item.thumbnail}
                         alt="ultimate war"
                         className="comics__item-img"
                     />
-                    <div className="comics__item-name">{title}</div>
-                    <div className="comics__item-price">{price}</div>
+                    <div className="comics__item-name">{item.title}</div>
+                    <div className="comics__item-price">{item.price}</div>
                 </Link>
             </li>
-        );
+        ));
+        return <ul className="comics__grid">{items}</ul>;
     };
 
-    const comicsItems = comicsList.map(ComicsItem);
     const spinner = loading && !newItemLoading ? <Spinner /> : null;
     const errorMessage = error ? <ErrorMessage /> : null;
 
@@ -58,7 +58,7 @@ const ComicsList = () => {
         <div className="comics__list">
             {spinner}
             {errorMessage}
-            <ul className="comics__grid">{comicsItems}</ul>
+            {renderItems(comicsList)}
             <button
                 className="button button__main button__long"
                 disabled={newItemLoading}

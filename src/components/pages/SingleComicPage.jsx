@@ -2,10 +2,8 @@ import { useParams, Link } from "react-router-dom";
 
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
-// import Skeleton from "../skeleton/Skeleton";
 
 import "./singleComicPage.scss";
-// import xMen from "../../resources/img/x-men.png";
 import { useEffect, useState } from "react";
 import useMarvelService from "../../services/MarvelService";
 
