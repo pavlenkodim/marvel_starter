@@ -49,7 +49,11 @@ const CharList = (props) => {
     function renderItems(arr) {
         const items = arr.map((item, i) => {
             return (
-                <CSSTransition key={item.id} classNames="char__item">
+                <CSSTransition
+                    key={item.id}
+                    classNames="char__item"
+                    timeout={500}
+                >
                     <li
                         className="char__item"
                         tabIndex={0}

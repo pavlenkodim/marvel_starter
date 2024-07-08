@@ -12,7 +12,7 @@ const Page404 = () => {
                     fontSize: "24px",
                 }}
             >
-                Page doesn't exist
+                Page does not exist
             </p>
             <button className="button button__main button__long">
                 <div className="inner">
