@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import useMarvelService from "../../services/MarvelService";
+import Spinner from "../spinner/Spinner";
 
 import "./searchChar.scss";
+import { Link } from "react-router-dom";
 
 const SearchChar = () => {
     const [char, setChar] = useState();
@@ -21,6 +23,7 @@ const SearchChar = () => {
     });
 
     const onSubmit = ({ character }) => {
+        setChar();
         getCharacterByName(character)
             .then(setChar)
             .catch((er) => {
@@ -41,23 +44,28 @@ const SearchChar = () => {
             return (
                 <div className="char__results char__success">
                     <div>There is! Visit {data.name} page?</div>
-                    <button
-                        onClick={console.log}
-                        className="button button__secondary"
-                    >
-                        <div className="inner">to page</div>
-                    </button>
+                    <Link to={`/characters/${data.id}`}>
+                        <button className="button button__secondary">
+                            <div className="inner">to page</div>
+                        </button>
+                    </Link>
                 </div>
             );
         }
         if (!data && isSubmitted) {
             return (
-                <div className="char__results char__error">
-                    <div>
-                        The character was not found. Check the name and try
-                        again
-                    </div>
-                </div>
+                <>
+                    {loading ? (
+                        <Spinner />
+                    ) : (
+                        <div className="char__results char__error">
+                            <div>
+                                The character was not found. Check the name and
+                                try again
+                            </div>
+                        </div>
+                    )}
+                </>
             );
         }
 

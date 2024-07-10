@@ -7,6 +7,7 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 import Skeleton from "../skeleton/Skeleton";
 
 import "./charInfo.scss";
+import { Link } from "react-router-dom";
 
 const CharInfo = (props) => {
     const [char, setChar] = useState(null);
@@ -53,6 +54,8 @@ const CharInfo = (props) => {
 const View = ({ char }) => {
     const { name, description, thumbnail, homepage, wiki, comics } = char;
 
+    console.log(comics);
+
     const comicsList = comics.length > 10 ? comics.slice(0, 10) : comics;
 
     return (
@@ -93,7 +96,7 @@ const View = ({ char }) => {
                 {comicsList.map((item, i) => {
                     return (
                         <li key={i} className="char__comics-item">
-                            {item.name}
+                            <Link to={`/comics/${item.id}`}>{item.name}</Link>
                         </li>
                     );
                 })}
