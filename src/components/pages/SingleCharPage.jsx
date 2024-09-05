@@ -1,57 +1,55 @@
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AppBanner from "../appBanner/AppBanner";
 import useMarvelService from "../../services/MarvelService";
-import { useEffect, useState } from "react";
-import Spinner from "../spinner/Spinner";
-import ErrorMessage from "../errorMessage/ErrorMessage";
+import setContent from "../../utils/setContent";
 
 import "./singleCharPage.scss";
 
 const SingleCharPage = () => {
-    const { charID } = useParams();
-    const [char, setChar] = useState();
-    const { loading, error, getCharacter, clearError } = useMarvelService();
+  const { charID } = useParams();
+  const [char, setChar] = useState();
+  const { getCharacter, clearError, process, setProcess } = useMarvelService();
 
-    useEffect(() => {
-        updateChar();
-    }, [charID]);
+  useEffect(() => {
+    updateChar();
+  }, [charID]);
 
-    const updateChar = () => {
-        if (!charID) return;
+  const updateChar = () => {
+    if (!charID) return;
 
-        clearError();
-        getCharacter(charID).then(onCharLoaded);
-    };
+    clearError();
+    getCharacter(charID)
+      .then(onCharLoaded)
+      .then(() => setProcess("confirmed"));
+  };
 
-    const onCharLoaded = (char) => {
-        setChar(char);
-    };
+  const onCharLoaded = (char) => {
+    setChar(char);
+  };
 
-    return (
-        <>
-            <AppBanner />
-            {loading ? <Spinner /> : null}
-            {error ? <ErrorMessage /> : null}
-            {!error && !loading && char ? View(char) : null}
-        </>
-    );
+  return (
+    <>
+      <AppBanner />
+      {setContent(process, View, char)}
+    </>
+  );
 };
 
-const View = (char) => {
-    const { name, description, thumbnail } = char;
-
-    return (
-        <div className="single-char">
-            <img src={thumbnail} alt={name} className="single-char__img" />
-            <div className="single-char__info">
-                <h2 className="single-char__name">{name}</h2>
-                <p className="single-char__descr">{description}</p>
-            </div>
-            <Link to="/" className="single-char__back">
-                Back to all
-            </Link>
-        </div>
-    );
+const View = ({ data }) => {
+  const { name, description, thumbnail } = data;
+  return (
+    <div className="single-char">
+      <img src={thumbnail} alt={name} className="single-char__img" />
+      <div className="single-char__info">
+        <h2 className="single-char__name">{name}</h2>
+        <p className="single-char__descr">{description}</p>
+      </div>
+      <Link to="/" className="single-char__back">
+        Back to all
+      </Link>
+    </div>
+  );
 };
 
 export default SingleCharPage;
