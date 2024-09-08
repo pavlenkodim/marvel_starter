@@ -1,74 +1,75 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import "./comicsList.scss";
 import useMarvelService from "../../services/MarvelService";
-import Spinner from "../spinner/Spinner";
-import ErrorMessage from "../errorMessage/ErrorMessage";
+import setContentWithLoading from "../../utils/setContentWithLoading";
+
+import "./comicsList.scss";
 
 const ComicsList = () => {
-    const [comicsList, setComicsList] = useState([]);
-    const [offset, setOffset] = useState(210);
-    const [newItemLoading, setNewItemLoading] = useState(false);
-    const [comicsListEnded, setComicsListEded] = useState(false);
+  const [comicsList, setComicsList] = useState([]);
+  const [newItemLoading, setNewItemLoading] = useState(false);
+  const [offset, setOffset] = useState(210);
+  const [comicsListEnded, setComicsListEnded] = useState(false);
 
-    const { loading, error, getAllComics } = useMarvelService();
+  const { getAllComics, process, setProcess } = useMarvelService();
 
-    useEffect(() => {
-        onRequest(offset, true);
-    }, []);
+  useEffect(() => {
+    onRequest(offset, true);
+  }, []);
 
-    const onRequest = (offset, initial) => {
-        initial ? setNewItemLoading(false) : setNewItemLoading(true);
-        getAllComics(offset).then(onComicsListLoaded);
-    };
+  const onRequest = (offset, initial) => {
+    initial ? setNewItemLoading(false) : setNewItemLoading(true);
+    getAllComics(offset)
+      .then(onComicsListLoaded)
+      .then(() => setProcess("confirmed"));
+  };
 
-    const onComicsListLoaded = (newComicsList) => {
-        let ended = false;
-        if (newComicsList.length < 8) {
-            ended = true;
-        }
+  const onComicsListLoaded = (newComicsList) => {
+    let ended = false;
+    if (newComicsList.length < 8) {
+      ended = true;
+    }
 
-        setComicsList((comicsList) => [...comicsList, ...newComicsList]);
-        setNewItemLoading(false);
-        setOffset((offset) => offset + 8);
-        setComicsListEded(ended);
-    };
+    setComicsList((comicsList) => [...comicsList, ...newComicsList]);
+    setNewItemLoading(false);
+    setOffset((offset) => offset + 8);
+    setComicsListEnded(ended);
+  };
 
-    const ComicsItem = ({ id, title, thumbnail, price, ...rest }) => {
-        return (
-            <li key={id} className="comics__item">
-                <Link to={`/comics/${id}`}>
-                    <img
-                        src={thumbnail}
-                        alt="ultimate war"
-                        className="comics__item-img"
-                    />
-                    <div className="comics__item-name">{title}</div>
-                    <div className="comics__item-price">{price}</div>
-                </Link>
-            </li>
-        );
-    };
+  const renderItems = (array) => {
+    const items = array.map((item) => (
+      <li key={item.id} className="comics__item">
+        <Link to={`/comics/${item.id}`}>
+          <img
+            src={item.thumbnail}
+            alt="ultimate war"
+            className="comics__item-img"
+          />
+          <div className="comics__item-name">{item.title}</div>
+          <div className="comics__item-price">{item.price}</div>
+        </Link>
+      </li>
+    ));
+    return <ul className="comics__grid">{items}</ul>;
+  };
 
-    const comicsItems = comicsList.map(ComicsItem);
-    const spinner = loading && !newItemLoading ? <Spinner /> : null;
-    const errorMessage = error ? <ErrorMessage /> : null;
-
-    return (
-        <div className="comics__list">
-            {spinner}
-            {errorMessage}
-            <ul className="comics__grid">{comicsItems}</ul>
-            <button
-                className="button button__main button__long"
-                disabled={newItemLoading}
-                style={{ display: comicsListEnded ? "none" : "block" }}
-                onClick={() => onRequest(offset, false)}
-            >
-                <div className="inner">load more</div>
-            </button>
-        </div>
-    );
+  return (
+    <div className="comics__list">
+      {setContentWithLoading(
+        process,
+        () => renderItems(comicsList),
+        newItemLoading
+      )}
+      <button
+        className="button button__main button__long"
+        disabled={newItemLoading}
+        style={{ display: comicsListEnded ? "none" : "block" }}
+        onClick={() => onRequest(offset, false)}
+      >
+        <div className="inner">load more</div>
+      </button>
+    </div>
+  );
 };
 
 export default ComicsList;

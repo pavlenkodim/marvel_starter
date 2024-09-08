@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import useMarvelService from "../../services/MarvelService";
+import setContentWithLoading from "../../utils/setContentWithLoading";
 
 import "./charList.scss";
-
-import Spinner from "../spinner/Spinner";
-import ErrorMessage from "../errorMessage/ErrorMessage";
 
 const CharList = ({ onCharSelected }) => {
   const [charList, setCharlist] = useState([]);
@@ -13,7 +11,7 @@ const CharList = ({ onCharSelected }) => {
   const [offset, setOffset] = useState(210);
   const [charEnded, setCharEnded] = useState(false);
 
-  const { loading, error, getAllCharacters } = useMarvelService();
+  const { getAllCharacters, process, setProcess } = useMarvelService();
 
   useEffect(() => {
     onRequest(offset, true);
@@ -21,7 +19,9 @@ const CharList = ({ onCharSelected }) => {
 
   const onRequest = (offset, initial) => {
     initial ? setNewItemLoading(false) : setNewItemLoading(true);
-    getAllCharacters(offset).then(onCharListLoaded);
+    getAllCharacters(offset)
+      .then(onCharListLoaded)
+      .then(() => setProcess("confirmed"));
   };
 
   const onCharListLoaded = (newCharList) => {
@@ -88,14 +88,17 @@ const CharList = ({ onCharSelected }) => {
     );
   }
 
-  const spinner = loading && !newItemLoading ? <Spinner /> : null;
-  const errorMessage = error ? <ErrorMessage /> : null;
+  const elements = useMemo(() => {
+    return setContentWithLoading(
+      process,
+      () => renderItems(charList),
+      newItemLoading
+    );
+  }, [process]);
 
   return (
     <div className="char__list">
-      {spinner}
-      {errorMessage}
-      {renderItems(charList)}
+      {elements}
       <button
         className="button button__main button__long"
         disabled={newItemLoading}
