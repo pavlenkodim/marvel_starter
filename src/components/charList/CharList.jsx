@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import useMarvelService from "../../services/MarvelService";
 import setContentWithLoading from "../../utils/setContentWithLoading";
@@ -88,13 +88,17 @@ const CharList = (props) => {
     );
   }
 
+  const elements = useMemo(() => {
+    return setContentWithLoading(
+      process,
+      () => renderItems(charList),
+      newItemLoading
+    );
+  }, [process]);
+
   return (
     <div className="char__list">
-      {setContentWithLoading(
-        process,
-        () => renderItems(charList),
-        newItemLoading
-      )}
+      {elements}
       <button
         className="button button__main button__long"
         disabled={newItemLoading}
