@@ -5,7 +5,7 @@ import setContentWithLoading from "../../utils/setContentWithLoading";
 
 import "./charList.scss";
 
-const CharList = (props) => {
+const CharList = ({ onCharSelected }) => {
   const [charList, setCharlist] = useState([]);
   const [newItemLoading, setNewItemLoading] = useState(false);
   const [offset, setOffset] = useState(210);
@@ -55,12 +55,12 @@ const CharList = (props) => {
             tabIndex={0}
             ref={(el) => (itemRefs.current[i] = el)}
             onClick={() => {
-              props.onCharSelected(item.id);
+              onCharSelected(item.id);
               focusOnItem(i);
             }}
             onKeyPress={(e) => {
               if (e.key === " " || e.key === "Enter" || e.key === "Space") {
-                props.onCharSelected(item.id);
+                onCharSelected(item.id);
                 focusOnItem(i);
               }
             }}
